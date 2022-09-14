@@ -1,4 +1,3 @@
-/* ` */
 const express = require('express')
 const app = express()
 const port = 3002
@@ -35,7 +34,7 @@ app.use(cors());
     app.use(express.urlencoded({ extended: true }));
 
 app.route('/').get((req,res) => {
-    res.send('questa è la homepage');
+    res.send('questa Ã¨ la homepage');
 })    
 /*app.route('/asd').post((req, res) => {
     res.json({msg: 'This is CORS-enabled for all origins!'})
