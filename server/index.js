@@ -21,7 +21,7 @@ const waitingQueue = new Queue('waiting queue',{
   }
 });
 
-waitingQueue.process(async (job) =>{
+/*waitingQueue.process(async (job) =>{
   var name = "file";
   var solution = "";
   const operation = await execution(`gcc -lstdc++ -o ./uploads/${name}.exe ./uploads/${job.data.file.originalname}`);
@@ -33,6 +33,24 @@ waitingQueue.process(async (job) =>{
   return Promise.resolve({
     complete : solution
   });
+});*/
+
+const nWorkers=4;
+
+waitingQueue.process(nWorkers, async (job) =>{
+  console.log("process");
+  var nameFile=job.data.file.originalname;
+  var extension=path.extname(nameFile);
+
+  var data= new Date().getTime();
+
+  const operation = await execution(`gcc -lstdc++ -o ./uploads/${data+path.basename(nameFile,extension)} ./uploads/${nameFile}`);
+  console.log("exec: ");
+  if(operation["result"] === 1 ){
+      return Promise.resolve({complete: "compiled: "+ nameFile+" at: "+ data});
+  }else{
+      return Promise.reject({complete: `error: ${operation["erroreType"]}`});
+  } 
 });
 
 waitingQueue.on('progress', function(job , progress){
@@ -44,9 +62,9 @@ waitingQueue.on('completed', function(job , progress){
 })
 
 
-waitingQueue.on('error', function (error) {
-  console.log(`job number: ${job.id} had an error`);
-})
+// waitingQueue.on('error', function (error) {
+//   console.log(`job number: ${job.id} had an error`);
+// })
 
 //multer
 var storage = multer.diskStorage({
@@ -81,29 +99,6 @@ async function execution (operation){
     return {"erroreType":error.stderr, "result":2};
   }  
 }
-
-
-
-
-
-const nWorkers=4;
-
-waitingQueue.process(nWorkers, async (job) =>{
-  console.log("process");
-  var nameFile=job.data.file.originalname;
-  var extension=path.extname(nameFile);
-
-  var data= new Date().getTime();
-
-  const operation = await execution(`gcc -lstdc++ -o ./uploads/${data+path.basename(nameFile,extension)} ./uploads/${nameFile}`);
-  console.log("exec: ");
-  if(operation["result"] === 1 ){
-      return Promise.resolve({complete: "compiled: "+ nameFile+" at: "+ data});
-  }else{
-      return Promise.reject({complete: `error: ${operation["erroreType"]}`});
-  } 
-});
-
 
 
 app.route('/file').post(upload.single('file'), async (req,res) => {
