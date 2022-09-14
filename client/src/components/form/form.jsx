@@ -49,14 +49,4 @@ class MyForm extends React.Component{
 
 
 
-/*
-
-const res = await axios.post('http://localhost:3002', formData, {
-  headers: formData.getHeaders()
-});*/
-
-
-
-
-
 export default MyForm;
