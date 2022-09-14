@@ -6,10 +6,45 @@ const multer  = require('multer')
 var result = "";
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-//const Queue = require('bull');
-//const { extendLock } = require('bull/lib/scripts')
-//const myFirstQueue = new Bull('my-first-queue');
+// bull
+const Queue = require('bull');
 
+const waitingQueue = new Queue('waiting queue',{
+  redis : {
+    host : "127.0.0.1",
+    port : 55002,
+    password : "redispw"
+  }
+});
+
+waitingQueue.process(async (job) =>{
+  var name = "file";
+  var solution = "";
+  const operation = await execution(`gcc -lstdc++ -o ./uploads/${name}.exe ./uploads/${job.data.file.originalname}`);
+  if(operation["result"] === 1 ){
+    solution = ("ok :D ");
+  }else{
+    solution = (`your request: ${operation["erroreType"]}`);
+  }
+  return Promise.resolve({
+    complete : solution
+  });
+});
+
+waitingQueue.on('progress', function(job , progress){
+  console.log(`job number: ${job.id}`);
+})
+
+waitingQueue.on('completed', function(job , progress){
+  console.log(`job number: ${job.id} is complited`);
+})
+
+
+waitingQueue.on('error', function (error) {
+  console.log(`job number: ${job.id} had an error`);
+})
+
+//multer
 var storage = multer.diskStorage({
   destination: function(req, file, cb) { 
      cb(null, './uploads');
@@ -18,15 +53,12 @@ var storage = multer.diskStorage({
      cb(null , file.originalname);
   }
 });
-/*
-const waitingQueue = new Queue('waiting queue',{
-  redis: {
-      host: '127.0.0.1',
-      port: 6379,
-  }
-});
-*/
 const upload = multer({ storage:storage})
+
+//redis
+
+
+
 
 
 app.use(cors());
@@ -34,7 +66,7 @@ app.use(cors());
     app.use(express.urlencoded({ extended: true }));
 
 app.route('/').get((req,res) => {
-    res.send('questa Ã¨ la homepage');
+    res.send('questa è la homepage');
 })    
 /*app.route('/asd').post((req, res) => {
     res.json({msg: 'This is CORS-enabled for all origins!'})
@@ -51,16 +83,13 @@ async function execution (operation){
 }
 
 app.route('/file').post(upload.single('file'), async (req,res) => {
-  console.log(req.file);
-  var name="file";
-  const operation = await execution(`gcc -lstdc++ -o ./uploads/${name}.exe ./uploads/${req.file.originalname}`);
-  console.log("finito l'exec: " + operation);
-  if(operation["result"] === 1 ){
-    res.send("ok :D ");
-  }else{
-    res.send(`your request: ${operation["erroreType"]}`);
-  }
-  
+  //var name="file";
+  const job = await waitingQueue.add({
+    file: req.file
+  });
+
+  const result = await job.finished();
+  res.send(result.complete);
 }) 
 
 
