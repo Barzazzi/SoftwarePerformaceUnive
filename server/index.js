@@ -16,15 +16,20 @@ const { doesNotMatch } = require('assert')
 const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
-    port : 55002,
-    password : "redispw"
+    port : 6379
   }
 });
 
-/*waitingQueue.process(async (job) =>{
-  var name = "file";
-  var solution = "";
-  const operation = await execution(`gcc -lstdc++ -o ./uploads/${name}.exe ./uploads/${job.data.file.originalname}`);
+
+const nWorkers=4;
+
+waitingQueue.process(nWorkers, async (job) =>{
+  var nameFile=job.data.file.originalname;
+  var extension=path.extname(nameFile);
+
+  var data= new Date().getTime();
+
+  const operation = await execution(`gcc -lstdc++ -o ./uploads/${data+path.basename(nameFile,extension)} ./uploads/${nameFile}`);
   if(operation["result"] === 1 ){
     solution = ("ok :D ");
   }else{
@@ -33,24 +38,6 @@ const waitingQueue = new Queue('waiting queue',{
   return Promise.resolve({
     complete : solution
   });
-});*/
-
-const nWorkers=4;
-
-waitingQueue.process(nWorkers, async (job) =>{
-  console.log("process");
-  var nameFile=job.data.file.originalname;
-  var extension=path.extname(nameFile);
-
-  var data= new Date().getTime();
-
-  const operation = await execution(`gcc -lstdc++ -o ./uploads/${data+path.basename(nameFile,extension)} ./uploads/${nameFile}`);
-  console.log("exec: ");
-  if(operation["result"] === 1 ){
-      return Promise.resolve({complete: "compiled: "+ nameFile+" at: "+ data});
-  }else{
-      return Promise.reject({complete: `error: ${operation["erroreType"]}`});
-  } 
 });
 
 waitingQueue.on('progress', function(job , progress){
@@ -62,9 +49,9 @@ waitingQueue.on('completed', function(job , progress){
 })
 
 
-// waitingQueue.on('error', function (error) {
-//   console.log(`job number: ${job.id} had an error`);
-// })
+waitingQueue.on('error', function (error) {
+  console.log(`job number: ${job.id} had an error`);
+})
 
 //multer
 var storage = multer.diskStorage({
@@ -105,14 +92,12 @@ app.route('/file').post(upload.single('file'), async (req,res) => {
   //var name="file";
   const job = await waitingQueue.add({
     file: req.file
-  },{delay : 5000});
+  });
 
   const result = await job.finished();
-  res.send(result.complete);
-  console.log("post, count queue: "+ (await waitingQueue.count()).toString());
   //controlli
-  if(result) res.send(result.complete);
-  else res.send(result.complete);
+  res.send(result.complete);
+  
   
 }) 
 
