@@ -5,9 +5,13 @@ const cors = require('cors')
 const multer  = require('multer')
 var result = "";
 const util = require('util');
+const path = require('path');
 const exec = util.promisify(require('child_process').exec);
+
 // bull
 const Queue = require('bull');
+const { doesNotMatch } = require('assert')
+//const { extendLock } = require('bull/lib/scripts')
 
 const waitingQueue = new Queue('waiting queue',{
   redis : {
@@ -68,9 +72,6 @@ app.use(cors());
 app.route('/').get((req,res) => {
     res.send('questa è la homepage');
 })    
-/*app.route('/asd').post((req, res) => {
-    res.json({msg: 'This is CORS-enabled for all origins!'})
-})*/
 
 async function execution (operation){
   try{
@@ -78,18 +79,46 @@ async function execution (operation){
     return {"stdout":stdout, "result":1};
   }catch (error){
     return {"erroreType":error.stderr, "result":2};
-  }
-  
+  }  
 }
+
+
+
+
+
+const nWorkers=4;
+
+waitingQueue.process(nWorkers, async (job) =>{
+  console.log("process");
+  var nameFile=job.data.file.originalname;
+  var extension=path.extname(nameFile);
+
+  var data= new Date().getTime();
+
+  const operation = await execution(`gcc -lstdc++ -o ./uploads/${data+path.basename(nameFile,extension)} ./uploads/${nameFile}`);
+  console.log("exec: ");
+  if(operation["result"] === 1 ){
+      return Promise.resolve({complete: "compiled: "+ nameFile+" at: "+ data});
+  }else{
+      return Promise.reject({complete: `error: ${operation["erroreType"]}`});
+  } 
+});
+
+
 
 app.route('/file').post(upload.single('file'), async (req,res) => {
   //var name="file";
   const job = await waitingQueue.add({
     file: req.file
-  });
+  },{delay : 5000});
 
   const result = await job.finished();
   res.send(result.complete);
+  console.log("post, count queue: "+ (await waitingQueue.count()).toString());
+  //controlli
+  if(result) res.send(result.complete);
+  else res.send(result.complete);
+  
 }) 
 
 
