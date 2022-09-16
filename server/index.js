@@ -49,9 +49,9 @@ waitingQueue.on('completed', function(job , progress){
 })
 
 
-waitingQueue.on('error', function (error) {
+/*waitingQueue.on('error', function (job , progress) {
   console.log(`job number: ${job.id} had an error`);
-})
+})*/
 
 //multer
 var storage = multer.diskStorage({

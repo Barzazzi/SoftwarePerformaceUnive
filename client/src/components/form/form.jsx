@@ -1,6 +1,8 @@
 import React from "react";
 import axios, { post } from 'axios';
+//import {Row, Col} from 'react-bootstrap/';
 
+import { Col, Row } from "../../components"
 
 class MyForm extends React.Component{
     constructor(props) {
@@ -37,11 +39,19 @@ class MyForm extends React.Component{
 
     render() {
         return (
-          <form onSubmit={this.onFormSubmit}>
-            <h1>File Upload</h1>
-            <input type="file" onChange={this.onChange} />
-            <button type="submit">Upload</button>
-          </form>
+          <>
+          <Row>
+            <Col>gayyyyyy</Col>
+            <Col>
+            <form onSubmit={this.onFormSubmit}>
+              <h1>File Upload</h1>
+              <input type="file" onChange={this.onChange} />
+              <button type="submit">Upload</button>
+            </form>    
+            </Col>   
+          </Row>
+           </>
+          
        )
     }
 
