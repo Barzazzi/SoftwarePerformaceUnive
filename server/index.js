@@ -17,7 +17,7 @@ const { send } = require('process')
 const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
-    port : 49154,
+    port : 55000,
     password : "redispw"
   }
 });
@@ -28,19 +28,19 @@ const nWorkers=4;
 waitingQueue.process(nWorkers, async (job) =>{
   var nameFile=job.data.name;
   var extension=path.extname(nameFile);
-
-  //const operation = await execution(`gcc -lstdc++ -o ./uploads/${data+path.basename(nameFile,extension)} ./uploads/${nameFile}`);
+  console.log(path.basename(nameFile,extension));
+  //const operation = await execution(`g++ -o ./uploads/${path.basename(nameFile,extension)} ./uploads/${nameFile}`);
   const operation = await execution(`g++ -o ./uploads/${path.basename(nameFile,extension)} ./uploads/${nameFile}`);
   if(operation["result"] === 1 ){
-    //const remove = await execution(`del ./uploads/${nameFile}`);
-    //const remove = await execution(`rm ./uploads/${nameFile}`);
-    //console.log(remove)
-    solution = ("ok :D ");
+    await execution(`rm ./uploads/${path.basename(nameFile,extension)}`);
+    solution = ("Your file "+nameFile.replace(new RegExp(/\d+\-/,"g"), "")+" has been compiled without any error! Good job!");
   }else{
     //pew = operation["erroreType"].replaceAll(/\d+\$/, "").replaceAll("./uploads/","")
-    pew = operation["erroreType"].replace(new RegExp(/\d+\$/,"g"), "").replace(new RegExp("./uploads/","g"),"")
-    solution = (`your request: ${pew}`);
+    pew = operation["erroreType"].replace(new RegExp(/\d+\-/,"g"), "").replace(new RegExp("./uploads/","g"),"")
+    solution = (`Compile failed: ${pew}`);
   }
+  //const remove = await execution(`del ./uploads/${nameFile}`);
+  await execution(`rm ./uploads/${nameFile}`);
   return Promise.resolve({
     complete : solution
   });
@@ -65,7 +65,7 @@ var storage = multer.diskStorage({
      cb(null, './uploads');
   },
   filename: function (req, file, cb) {
-     cb(null ,Date.now() +"$"+file.originalname);
+     cb(null ,Date.now() +"-"+file.originalname);
   }
 });
 const upload = multer({

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FileUploader } from "react-drag-drop-files";
 import axios, { post } from 'axios';
+import parse from 'html-react-parser'
 import "./drag.css"
 const fileTypes = ["cpp"];
 
@@ -24,8 +25,9 @@ function DragDrop() {
             alert("error: " + JSON.stringify(error));
         });
         //alert(JSON.stringify(res.data));
-        setResult(JSON.stringify(res.data));
-        
+        // console.log(JSON.stringify(res.data))
+        //setResult(JSON.stringify(res.data).replaceAll("\\n"," <br>").replaceAll("\"","").replaceAll("\"",""));
+        setResult(JSON.stringify(res.data))
     }
     
   }
@@ -39,7 +41,7 @@ function DragDrop() {
             </button>
         </div>
         <div className="resultArea">
-            {result}
+            <pre className="output">{parse(result.replaceAll("\\n"," <br>").replaceAll("\"",""))}</pre>
         </div>
         
     </>
