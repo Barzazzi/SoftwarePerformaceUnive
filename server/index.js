@@ -39,7 +39,6 @@ waitingQueue.process(nWorkers, async (job) =>{
     complete : solution
   });
 });
-
 waitingQueue.on('progress', function(job , progress){
   console.log(`job number: ${job.id}`);
 })

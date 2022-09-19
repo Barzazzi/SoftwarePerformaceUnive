@@ -1,60 +1,43 @@
-import React from "react";
+import React, {useState} from "react";
 import axios, { post } from 'axios';
+import { FileUploader } from "react-drag-drop-files";
 //import {Row, Col} from 'react-bootstrap/';
 
 import { Col, Row } from "../../components"
 
-class MyForm extends React.Component{
-    constructor(props) {
-        super(props);
-        
-        this.state ={
-          file:null,
-          accept_only: ".cpp,.cc"
-        };
-        this.onFormSubmit = this.onFormSubmit.bind(this);
-        this.onChange = this.onChange.bind(this);
-    }
+const MyForm = () => {
 
-    async onFormSubmit (e) {
-        e.preventDefault(); // Stop form submit
-        //alert("questo è il file" + this.state.file.name);
-        const url = 'http://localhost:3002/file';
-        const formData = new FormData();
-        const file= this.state.file;
-        formData.append('file',file, file.name);
-        //alert("contenuto di file"+ formData.getAll("file").name);
-        const res = await axios.post(url,formData)
-        .catch(function (error){
-          alert("error: " + JSON.stringify(error));
-        });
-        alert(JSON.stringify(res.data));
-      }
+  const [file, setFile] = useState(null);
 
-    onChange(e) {
-      // da introdurre il controllo
-        this.setState({file:e.target.files[0]});
-    }
+   const onFormSubmit = async (e) => {
+    e.preventDefault(); 
+    const url = 'http://localhost:3002/file';
+    const formData = new FormData();
+    formData.append('file',file, file.name);
+    const res = await axios.post(url,formData)
+    .catch(function (error){
+      alert("error: " + JSON.stringify(error));
+    });
+    alert(JSON.stringify(res.data));
+  };
 
-
-    render() {
-        return (
-          <>
-          <Row>
-            <Col>gayyyyyy</Col>
-            <Col>
-            <form onSubmit={this.onFormSubmit}>
+  const onChange = (e) => {
+  // da introdurre il controllo
+    setFile(e.target.files[0]);
+  };
+  
+  return(
+    <>
+        <Row>
+          <Col>
+          <form onSubmit={onFormSubmit}>
               <h1>File Upload</h1>
-              <input type="file" onChange={this.onChange} />
+              <input type="file" onChange={onChange} />
               <button type="submit">Upload</button>
-            </form>    
-            </Col>   
-          </Row>
-           </>
-          
-       )
-    }
-
+            </form> 
+          </Col> 
+        </Row>
+    </>
+  )
 }
-
 export default MyForm;
