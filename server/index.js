@@ -10,55 +10,70 @@ const exec = util.promisify(require('child_process').exec);
 
 // bull
 const Queue = require('bull');
-const { doesNotMatch } = require('assert')
-const { send } = require('process')
-//const { extendLock } = require('bull/lib/scripts')
 
-/*const waitingQueue = new Queue('waiting queue',{
+const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
-    port : 55000,
+    port : 49154,
     password : "redispw"
-  }
-});*/
+  },
+});
 
+/*
 const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
     port : 6379
   }
-});
+});*/
 
-const nWorkers=4;
+
+const nWorkers=2;
+
+//funzione di sleep
+function sleep(t) {
+  return new Promise(resolve => setTimeout(resolve, t));
+}
 
 waitingQueue.process(nWorkers, async (job) =>{
+  //await sleep(5000);
   var nameFile=job.data.name;
   var extension=path.extname(nameFile);
-  console.log(path.basename(nameFile,extension));
   //const operation = await execution(`g++ -o ./uploads/${path.basename(nameFile,extension)} ./uploads/${nameFile}`);
   const operation = await execution(`g++ -o ./uploads/${path.basename(nameFile,extension)} ./uploads/${nameFile}`);
   if(operation["result"] === 1 ){
+    //estensione da modificare quando si passa da windows a mac
     await execution(`rm ./uploads/${path.basename(nameFile,extension)}`);
     solution = ("Your file "+nameFile.replace(new RegExp(/\d+\-/,"g"), "")+" has been compiled without any error! Good job!");
   }else{
-    //pew = operation["erroreType"].replaceAll(/\d+\$/, "").replaceAll("./uploads/","")
     pew = operation["erroreType"].replace(new RegExp(/\d+\-/,"g"), "").replace(new RegExp("./uploads/","g"),"")
     solution = (`Compile failed: ${pew}`);
   }
-  //const remove = await execution(`del ./uploads/${nameFile}`);
   await execution(`rm ./uploads/${nameFile}`);
   return Promise.resolve({
     complete : solution
   });
 });
 
-waitingQueue.on('progress', function(job , progress){
-  console.log(`job number: ${job.id}`);
-})
+waitingQueue.on('progress', function (job, progress) {
+  console.log(`job ${job.id} is ${progress * 100}% ready!`);
+});
 
 waitingQueue.on('completed', function(job , progress){
   console.log(`job number: ${job.id} is complited`);
 })
+
+waitingQueue.on('active', function (job, jobPromise) {
+  console.log(`job number: ${job.id} has started compiling`);
+})
+
+waitingQueue.on('failed', function (job, err) {
+  console.log(`job number: ${job.id} has failed`);
+})
+
+waitingQueue.on('waiting', function (jobId) {
+  console.log(`job number: ${jobId} is waiting`);
+});
 
 
 /*waitingQueue.on('error', function (job, error) {
@@ -82,7 +97,6 @@ const upload = multer({
     if (extension == ".cpp" || extension == ".cc") {
       cb(null, true);
     } else {
-      //cb(new Error("mi piace il cazzo"),false);
       return cb(new Error('Only .cpp, .cc format allowed!'),false);
     }
   },
@@ -97,7 +111,7 @@ app.use(cors());
     app.use(express.urlencoded({ extended: true }));
 
 app.route('/').get((req,res) => {
-    res.send('questa è la homepage');
+    res.send('questa Ã¨ la homepage');
 })
 
 async function execution (operation){
@@ -121,12 +135,13 @@ app.route('/file').post(async (req,res) => {
       const job = await waitingQueue.add({
         name: req.files["file"][0].filename
       });
-
+      console.log("jobs active: "+(await waitingQueue.getJobCounts()).active);
+      console.log("jobs waiting: "+(await waitingQueue.getJobCounts()).waiting);
       //console.log(req.files["file"][0].filename)
       const result = await job.finished();
 
       //controlli
-      console.log(result.complete)
+      //console.log(result.complete)
       res.send(result.complete);
     }
   })
