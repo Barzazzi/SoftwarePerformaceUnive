@@ -1,13 +1,13 @@
 import React from "react";
 import './button.css';
 
-function Button(){
+const Button = ({operation})=>{
 
     
     return(
-    <>
-        <button className="compile-button">Bottone</button>
-    </>
+   <button className="myButton" onClick={operation}>
+    <p>Upload my file</p>
+    </button>
     );
 }
 

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import {Button}from '../';
+import axios, { post } from 'axios';
 
 import './drop-file-input.css';
 
@@ -27,9 +28,24 @@ const DropFileInput = props => {
         }
     }
 
-    const fileRemove = (file) => {
+    const fileRemove =  async (file) => {
         setFile(null);
        // props.onFileChange(null);
+    }
+    const submit = async (e) => {
+        e.preventDefault(); 
+        const url = 'http://localhost:3002/file';
+        const formData = new FormData();
+        
+        if(file!=null){
+            formData.append('file',file, file.name);
+            const res = await axios.post(url,formData)
+            .catch(function (error){
+                alert("error: " + JSON.stringify(error));
+            });
+            alert(JSON.stringify(res.data));
+        }
+        
     }
 
     return (
@@ -66,7 +82,7 @@ const DropFileInput = props => {
                             </div>
                             
                         }
-                        <Button/>
+                        <Button operation={submit}> </Button>
                     </div>
                     
                 ) : null
