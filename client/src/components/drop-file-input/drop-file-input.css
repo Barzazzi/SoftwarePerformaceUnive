@@ -1,6 +1,6 @@
 .drop-file-input {
     position: relative;
-    width: 600px;
+    width: 1000px;
     height: 200px;
     border: 2px dashed var(--border-color);
     border-radius: 20px;
@@ -15,8 +15,7 @@
 .drop-file-input input {
     opacity: 0;
     position: absolute;
-    top: 0;
-    left: 0;
+    margin: auto;
     width: 100%;
     height: 100%;
     cursor: pointer;
@@ -94,3 +93,14 @@
     opacity: 1;
 }
 
+.drop-file-result {
+    position: relative;
+    justify-content: center;
+    display: flex;
+    margin-bottom: 10px;
+    background-color: var(--input-bg);
+    padding: 15px;
+    border-radius: 20px;
+    text-align: left ;
+  }
+  

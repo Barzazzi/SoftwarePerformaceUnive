@@ -14,7 +14,7 @@ const Queue = require('bull');
 const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
-    port : 49154,
+    port : 55000,
     password : "redispw"
   },
 });
@@ -47,7 +47,7 @@ waitingQueue.process(nWorkers, async (job) =>{
     solution = ("Your file "+nameFile.replace(new RegExp(/\d+\-/,"g"), "")+" has been compiled without any error! Good job!");
   }else{
     pew = operation["erroreType"].replace(new RegExp(/\d+\-/,"g"), "").replace(new RegExp("./uploads/","g"),"")
-    solution = (`Compile failed: ${pew}`);
+    solution = (`Compile failed:\n ${pew}`);
   }
   await execution(`rm ./uploads/${nameFile}`);
   return Promise.resolve({

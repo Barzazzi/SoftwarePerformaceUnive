@@ -1,13 +1,15 @@
 import React from "react";
 import './button.css';
+import { HiOutlineClipboardCheck } from 'react-icons/hi';
+const  Button=({ onPress }) => {
 
-const Button = ({operation})=>{
 
-    
     return(
-   <button className="myButton" onClick={operation}>
-    <p>Upload my file</p>
-    </button>
+    <>
+        <button className="compile-button" onClick={onPress}>
+            Compile <HiOutlineClipboardCheck/>
+        </button>
+    </>
     );
 }
 

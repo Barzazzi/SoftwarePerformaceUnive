@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import {Button}from '../';
 import axios, { post } from 'axios';
-
+import parse from 'html-react-parser';
 import './drop-file-input.css';
 
 import { ImageConfig } from './ImageConfig'; 
@@ -13,6 +13,7 @@ const DropFileInput = props => {
     const wrapperRef = useRef(null);
 
     const [file, setFile] = useState(null);
+    const [result, setResult]=useState(null);
 
     const onDragEnter = () => wrapperRef.current.classList.add('dragover');
 
@@ -21,6 +22,7 @@ const DropFileInput = props => {
     const onDrop = () => wrapperRef.current.classList.remove('dragover');
 
     const onFileDrop = (e) => {
+        setResult(null);
         const newFile = e.target.files[0];
         if (newFile) {
             setFile(newFile);
@@ -43,7 +45,9 @@ const DropFileInput = props => {
             .catch(function (error){
                 alert("error: " + JSON.stringify(error));
             });
-            alert(JSON.stringify(res.data));
+            //alert(JSON.stringify(res.data));
+            setResult(JSON.stringify(res.data));
+            setFile(null);
         }
         
     }
@@ -82,10 +86,19 @@ const DropFileInput = props => {
                             </div>
                             
                         }
-                        <Button operation={submit}> </Button>
+                        <Button onPress={submit}> </Button>
                     </div>
                     
                 ) : null
+            }
+            {
+                result != null ? (
+                    <div className="drop-file-preview">
+                        <div className='drop-file-result'>
+                            <pre>{parse(result.replaceAll("\\n"," <br>").replaceAll("\"",""))}</pre>
+                        </div>
+                    </div>
+                ):null 
             }
         </>
     );
