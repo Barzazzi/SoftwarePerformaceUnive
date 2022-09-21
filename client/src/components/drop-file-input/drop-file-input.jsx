@@ -72,7 +72,7 @@ const DropFileInput = props => {
                 file != null ? (
                     <div className="drop-file-preview">
                         <p className="drop-file-preview__title">
-                            Ready to upload
+                            Ready to upload 
                         </p>
                         
                         {
@@ -86,7 +86,7 @@ const DropFileInput = props => {
                             </div>
                             
                         }
-                        <Button onPress={submit}> </Button>
+                        <Button onPress={submit}> Compile </Button>
                     </div>
                     
                 ) : null

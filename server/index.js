@@ -11,21 +11,21 @@ const exec = util.promisify(require('child_process').exec);
 // bull
 const Queue = require('bull');
 
-const waitingQueue = new Queue('waiting queue',{
+/*const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
     port : 55000,
     password : "redispw"
   },
-});
+});*/
 
-/*
+
 const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
     port : 6379
   }
-});*/
+});
 
 
 const nWorkers=2;

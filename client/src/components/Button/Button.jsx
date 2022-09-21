@@ -1,13 +1,12 @@
 import React from "react";
 import './button.css';
 import { HiOutlineClipboardCheck } from 'react-icons/hi';
-const  Button=({ onPress }) => {
-
+const  Button=({ children, onPress }) => {
 
     return(
     <>
         <button className="compile-button" onClick={onPress}>
-            Compile <HiOutlineClipboardCheck/>
+            {children} <HiOutlineClipboardCheck/>
         </button>
     </>
     );
