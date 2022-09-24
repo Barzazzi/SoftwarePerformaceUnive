@@ -26,17 +26,16 @@ const DropFileInput = props => {
         const newFile = e.target.files[0];
         if (newFile) {
             setFile(newFile);
-            //props.onFileChange(file);
         }
     }
 
     const fileRemove =  async (file) => {
         setFile(null);
-       // props.onFileChange(null);
     }
     const submit = async (e) => {
         e.preventDefault(); 
-        const url = 'http://localhost:3002/file';
+        //const url = 'http://localhost:3002/file';
+        const url = 'http://192.168.1.6:3002/file';
         const formData = new FormData();
         
         if(file!=null){
@@ -45,7 +44,6 @@ const DropFileInput = props => {
             .catch(function (error){
                 alert("error: " + JSON.stringify(error));
             });
-            //alert(JSON.stringify(res.data));
             setResult(JSON.stringify(res.data));
             setFile(null);
         }

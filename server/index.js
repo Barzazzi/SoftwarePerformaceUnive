@@ -3,7 +3,6 @@ const app = express()
 const port = 3002
 const cors = require('cors')
 const multer  = require('multer')
-var result = "";
 const util = require('util');
 const path = require('path');
 const exec = util.promisify(require('child_process').exec);
@@ -11,21 +10,20 @@ const exec = util.promisify(require('child_process').exec);
 // bull
 const Queue = require('bull');
 
-const waitingQueue = new Queue('waiting queue',{
+/*const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
     port : 49153,
     password : "redispw"
   },
-});
+});*/
 
-/*
 const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
     port : 6379
   }
-});*/
+});
 
 
 const nWorkers=2;
@@ -36,10 +34,8 @@ function sleep(t) {
 }
 
 waitingQueue.process(nWorkers, async (job) =>{
-  //await sleep(5000);
   var nameFile=job.data.name;
   var extension=path.extname(nameFile);
-  //const operation = await execution(`g++ -o ./uploads/${path.basename(nameFile,extension)} ./uploads/${nameFile}`);
   const operation = await execution(`g++ -o ./uploads/${path.basename(nameFile,extension)} ./uploads/${nameFile}`);
   if(operation["result"] === 1 ){
     //estensione da modificare quando si passa da windows a mac
@@ -75,10 +71,6 @@ waitingQueue.on('waiting', function (jobId) {
   console.log(`job number: ${jobId} is waiting`);
 });
 
-
-/*waitingQueue.on('error', function (job, error) {
-  console.log(`job number: ${job.name} had an error`);
-})*/
 
 //multer
 var storage = multer.diskStorage({
@@ -127,7 +119,6 @@ const fileUpload = upload.fields([{ name: "file" }]);
 
 app.route('/file').post(async (req,res) => {
   fileUpload(req, res, async (error) => {
-    //console.log(error);
     if (error) {
       console.log("File can not be uploaded");
       res.send(error.message);
@@ -137,11 +128,7 @@ app.route('/file').post(async (req,res) => {
       });
       console.log("jobs active: "+(await waitingQueue.getJobCounts()).active);
       console.log("jobs waiting: "+(await waitingQueue.getJobCounts()).waiting);
-      //console.log(req.files["file"][0].filename)
       const result = await job.finished();
-
-      //controlli
-      //console.log(result.complete)
       res.send(result.complete);
     }
   })
