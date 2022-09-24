@@ -10,21 +10,22 @@ const exec = util.promisify(require('child_process').exec);
 // bull
 const Queue = require('bull');
 
-/*const waitingQueue = new Queue('waiting queue',{
+const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
     port : 49153,
     password : "redispw"
   },
-});*/
+});
 
+/*
 const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
     port : 6379
   }
 });
-
+*/
 
 const nWorkers=2;
 
@@ -39,13 +40,13 @@ waitingQueue.process(nWorkers, async (job) =>{
   const operation = await execution(`g++ -o ./uploads/${path.basename(nameFile,extension)} ./uploads/${nameFile}`);
   if(operation["result"] === 1 ){
     //estensione da modificare quando si passa da windows a mac
-    await execution(`rm ./uploads/${path.basename(nameFile,extension)}.exe`);
+    await execution(`del /f uploads\\${path.basename(nameFile,extension)}.exe`);
     solution = ("Your file "+nameFile.replace(new RegExp(/\d+\-/,"g"), "")+" has been compiled without any error! Good job!");
   }else{
     pew = operation["erroreType"].replace(new RegExp(/\d+\-/,"g"), "").replace(new RegExp("./uploads/","g"),"")
     solution = (`Compile failed:\n ${pew}`);
   }
-  await execution(`rm ./uploads/${nameFile}`);
+  await execution(`del /f uploads\\${nameFile}`);
   return Promise.resolve({
     complete : solution
   });
