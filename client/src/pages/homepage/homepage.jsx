@@ -5,7 +5,7 @@ const Homepage = () => {
     return( 
         <div className="box">
             <h2 className="header">
-                React drop files input
+                C++ Compiler
             </h2>
             <Drop
             />

@@ -66,9 +66,8 @@
 }
 
 .drop-file-preview__item__info {
-    display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    margin-top: 12px;
 }
 
 .drop-file-preview__item__del {
@@ -98,9 +97,11 @@
     justify-content: center;
     display: flex;
     margin-bottom: 10px;
-    background-color: var(--input-bg);
+    background-color: black;
+    color: white;
     padding: 15px;
     border-radius: 20px;
     text-align: left ;
+    font-size: 16px;
   }
   

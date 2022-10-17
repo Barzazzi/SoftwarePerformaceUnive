@@ -34,8 +34,8 @@ const DropFileInput = props => {
     }
     const submit = async (e) => {
         e.preventDefault(); 
-        //const url = 'http://localhost:3002/file';
-        const url = 'http://192.168.1.6:3002/file';
+        const url = 'http://localhost:3002/file';
+        //const url = 'http://169.254.112.156:3002/file';
         const formData = new FormData();
         
         if(file!=null){
@@ -70,7 +70,7 @@ const DropFileInput = props => {
                 file != null ? (
                     <div className="drop-file-preview">
                         <p className="drop-file-preview__title">
-                            Ready to upload 
+                            Selected file:
                         </p>
                         
                         {

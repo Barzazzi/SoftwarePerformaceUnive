@@ -13,7 +13,7 @@ const Queue = require('bull');
 const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
-    port : 49153,
+    port : 55001,
     password : "redispw"
   },
 });
@@ -27,7 +27,7 @@ const waitingQueue = new Queue('waiting queue',{
 });
 */
 
-const nWorkers=2;
+const nWorkers=4;
 
 //funzione di sleep
 function sleep(t) {
@@ -40,13 +40,15 @@ waitingQueue.process(nWorkers, async (job) =>{
   const operation = await execution(`g++ -o ./uploads/${path.basename(nameFile,extension)} ./uploads/${nameFile}`);
   if(operation["result"] === 1 ){
     //estensione da modificare quando si passa da windows a mac
-    await execution(`del /f uploads\\${path.basename(nameFile,extension)}.exe`);
+    //await execution(`del /f uploads\\${path.basename(nameFile,extension)}.exe`);
+    await execution(`rm uploads/${path.basename(nameFile,extension)}`);
     solution = ("Your file "+nameFile.replace(new RegExp(/\d+\-/,"g"), "")+" has been compiled without any error! Good job!");
   }else{
     pew = operation["erroreType"].replace(new RegExp(/\d+\-/,"g"), "").replace(new RegExp("./uploads/","g"),"")
-    solution = (`Compile failed:\n ${pew}`);
+    solution = (`Compilation failed:\n ${pew}`);
   }
-  await execution(`del /f uploads\\${nameFile}`);
+  //await execution(`del /f uploads\\${nameFile}`);
+  await execution(`rm uploads/${nameFile}`);
   return Promise.resolve({
     complete : solution
   });
@@ -58,15 +60,15 @@ waitingQueue.on('progress', function (job, progress) {
 
 waitingQueue.on('completed', function(job , progress){
   console.log(`job number: ${job.id} is complited`);
-})
+});
 
 waitingQueue.on('active', function (job, jobPromise) {
   console.log(`job number: ${job.id} has started compiling`);
-})
+});
 
 waitingQueue.on('failed', function (job, err) {
   console.log(`job number: ${job.id} has failed`);
-})
+});
 
 waitingQueue.on('waiting', function (jobId) {
   console.log(`job number: ${jobId} is waiting`);
@@ -124,9 +126,13 @@ app.route('/file').post(async (req,res) => {
       console.log("File can not be uploaded");
       res.send(error.message);
     } else {
+      const jobOptions = {
+        removeOnComplete: true,
+        removeOnFail: true
+      }
       const job = await waitingQueue.add({
         name: req.files["file"][0].filename
-      });
+      },jobOptions);
       console.log("jobs active: "+(await waitingQueue.getJobCounts()).active);
       console.log("jobs waiting: "+(await waitingQueue.getJobCounts()).waiting);
       const result = await job.finished();
