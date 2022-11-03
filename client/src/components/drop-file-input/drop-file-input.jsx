@@ -34,8 +34,8 @@ const DropFileInput = props => {
     }
     const submit = async (e) => {
         e.preventDefault(); 
+        //const url = 'http://169.254.246.192:3002/file';
         const url = 'http://localhost:3002/file';
-        //const url = 'http://169.254.112.156:3002/file';
         const formData = new FormData();
         
         if(file!=null){

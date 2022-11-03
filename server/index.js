@@ -13,7 +13,7 @@ const Queue = require('bull');
 const waitingQueue = new Queue('waiting queue',{
   redis : {
     host : "127.0.0.1",
-    port : 55001,
+    port : 55000,
     password : "redispw"
   },
 });
@@ -27,7 +27,7 @@ const waitingQueue = new Queue('waiting queue',{
 });
 */
 
-const nWorkers=4;
+const nWorkers=1;
 
 //funzione di sleep
 function sleep(t) {
