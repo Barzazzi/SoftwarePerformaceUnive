@@ -14,7 +14,7 @@
 .compile-button:hover{
     background-color: white;
     color: rgb(60, 96, 227);
-   
+    cursor: pointer;
 }
 
 .logo{
