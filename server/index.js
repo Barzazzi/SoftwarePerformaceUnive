@@ -27,7 +27,7 @@ const waitingQueue = new Queue('waiting queue',{
 });
 */
 
-const nWorkers=1;
+const nWorkers=4;
 
 //funzione di sleep
 function sleep(t) {
@@ -89,7 +89,7 @@ const upload = multer({
 
   fileFilter: (req, file, cb)=>{
     var extension=path.extname(file.originalname);
-    if (extension == ".cpp" || extension == ".cc") {
+    if (extension == ".cpp" || extension == ".cc" || extension == ".c") {
       cb(null, true);
     } else {
       return cb(new Error('Only .cpp, .cc format allowed!'),false);
@@ -106,7 +106,7 @@ app.use(cors());
     app.use(express.urlencoded({ extended: true }));
 
 app.route('/').get((req,res) => {
-    res.send('questa Ã¨ la homepage');
+    res.send('Server up');
 })
 
 async function execution (operation){

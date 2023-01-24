@@ -35,7 +35,8 @@ const DropFileInput = props => {
     const submit = async (e) => {
         e.preventDefault(); 
         const url = 'http://127.0.0.1:3002/file';
-        //const url = 'http://157.138.166.94:3002/file'; //for tsung recording ip address of this pc in internet
+        //const url = 'http://169.254.181.213:3002/file';
+        //const url = 'http://157.138.164.29:3002/file'; //for tsung recording ip address of this pc in internet
         const formData = new FormData();
         
         if(file!=null){
